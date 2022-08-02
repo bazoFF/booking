@@ -1,6 +1,6 @@
 {
-	"appId": "io.ionic.starter",
-	"appName": "booking",
+	"appId": "io.ionic.starter.bookings",
+	"appName": "Booking",
 	"webDir": "www",
 	"bundledWebRuntime": false
 }
