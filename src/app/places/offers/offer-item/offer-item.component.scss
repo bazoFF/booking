@@ -8,9 +8,22 @@ h1 {
 
 .offer-details {
   display: flex;
-  align-items: center;
+  padding-top: 5px;
 
-  & > :not(:first-child) {
-    margin-left: 5px;
+  &__date {
+    display: flex;
+    font-size: 15px;
+
+    &:first-child {
+      margin-right: 5px;
+    }
+
+    &:last-child {
+      margin-left: 5px;
+    }
+
+    ion-icon {
+      margin-right: 5px;
+    }
   }
 }

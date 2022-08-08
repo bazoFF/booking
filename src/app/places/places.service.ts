@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {IPlace, IPlaceCreate} from './places.model';
+import {IPlace, IPlaceCreate, IPlaceUpdate} from './places.model';
 import {AuthService} from "../auth/auth.service";
 import {BehaviorSubject, Observable} from "rxjs";
-import {map, take} from "rxjs/operators";
+import {delay, map, take, tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -62,8 +62,24 @@ export class PlacesService {
       userId: this._authService.userId
     };
 
-    this.places.pipe(take(1)).subscribe((places) => {
-      this._places.next(places.concat(newPlace));
-    });
+    return this.places.pipe(take(1), delay(1000), tap((places) => {
+        this._places.next(places.concat(newPlace));
+    }));
+  }
+
+  updatePlace(placeId: string, dto: IPlaceUpdate) {
+    return this.places.pipe(take(1), delay(1000), tap(places => {
+      const updatedPlaceIndex = places.findIndex(place => place.id === placeId);
+      const updatedPlaces = [...places];
+      const oldPlace = {...updatedPlaces[updatedPlaceIndex]};
+
+      updatedPlaces[updatedPlaceIndex] = {
+        ...oldPlace,
+        title: dto.title,
+        description: dto.description
+      };
+
+      this._places.next(updatedPlaces);
+    }));
   }
 }

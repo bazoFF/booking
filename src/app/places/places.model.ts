@@ -16,3 +16,8 @@ export interface IPlaceCreate {
   availableFrom: Date;
   availableTo: Date;
 }
+
+export interface IPlaceUpdate {
+  title: string;
+  description: string;
+}

@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {PlacesService} from "../../places.service";
-import {NavController} from "@ionic/angular";
-import {IPlace} from "../../places.model";
+import {LoadingController, NavController} from "@ionic/angular";
+import {IPlace, IPlaceUpdate} from "../../places.model";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {Subscription} from "rxjs";
 
@@ -12,26 +12,28 @@ import {Subscription} from "rxjs";
   styleUrls: ['./edit-offer.page.scss'],
 })
 export class EditOfferPage implements OnInit, OnDestroy {
+  public place: IPlace;
+  public form: FormGroup;
 
-  place: IPlace;
-  form: FormGroup;
   private _placeSub: Subscription;
 
   constructor(
-    private route: ActivatedRoute,
-    private placesService: PlacesService,
-    private navController: NavController
+    private _route: ActivatedRoute,
+    private _placesService: PlacesService,
+    private _navController: NavController,
+    private _loadingController: LoadingController,
+    private _router: Router
   ) {
   }
 
   ngOnInit() {
-    this.route.paramMap.subscribe(paramMap => {
+    this._route.paramMap.subscribe(paramMap => {
       if (paramMap.has('placeId')) {
-        this._placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
+        this._placeSub = this._placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
           this.place = place;
         });
       } else {
-        this.navController.navigateBack('/places/tabs/offers');
+        this._navController.navigateBack('/places/tabs/offers');
         return;
       }
     });
@@ -46,7 +48,22 @@ export class EditOfferPage implements OnInit, OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    console.log(this.form);
+
+    const dto: IPlaceUpdate = {
+      title: this.form.get('title').value,
+      description: this.form.get('description').value,
+    };
+
+    this._loadingController.create({
+      message: 'Updating place...'
+    }).then(element => {
+      element.present().then();
+      this._placesService.updatePlace(this.place.id, dto).subscribe(() => {
+        element.dismiss().then();
+        this.form.reset();
+        this._router.navigate(['/places/tabs/offers']).then();
+      });
+    });
   }
 
   ngOnDestroy() {

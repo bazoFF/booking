@@ -2,6 +2,7 @@ import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {IPlace} from "../../places/places.model";
 import {ModalController} from "@ionic/angular";
 import {FormGroup, NgForm} from "@angular/forms";
+import {IBookingStartCreate} from "../booking";
 
 @Component({
   selector: 'app-create-booking',
@@ -29,13 +30,16 @@ export class CreateBookingComponent implements OnInit {
     if (this.form.invalid || !this.datesIsValid) {
       return;
     }
-    this.modalController.dismiss({ bookingData: {
-        firstName: this.form.value['first-name'],
-        lastName: this.form.value['last-name'],
-        guestNumber: this.form.value['guest-number'],
-        startDate: new Date(this.form.value['date-from']).toISOString(),
-        endDate: new Date(this.form.value['date-to']).toISOString(),
-      }}, 'confirm').then();
+
+    const dto: IBookingStartCreate = {
+      firstName: this.form.value['first-name'],
+      lastName: this.form.value['last-name'],
+      guestNumber: +this.form.value['guest-number'],
+      dateFrom: new Date(this.form.value['date-from']),
+      dateTo: new Date(this.form.value['date-to']),
+    };
+
+    this.modalController.dismiss(dto, 'confirm').then();
   }
 
   cancel() {
