@@ -50,7 +50,6 @@
             <ion-label position="floating">Available from</ion-label>
             <ion-input value="{{ form.get('dateFrom').value | date: 'dd/MM/yyyy HH:mm'  }}"
                        id="dateFromPicker"
-                       class="ion-text-end"
             ></ion-input>
             <ion-popover trigger="dateFromPicker" size=>
               <ng-template>
@@ -64,7 +63,6 @@
             <ion-label position="floating">Available to</ion-label>
             <ion-input value="{{ form.get('dateTo').value | date: 'dd/MM/yyyy HH:mm'  }}"
                        id="dateToPicker"
-                       class="ion-text-end"
             ></ion-input>
             <ion-popover trigger="dateToPicker">
               <ng-template>

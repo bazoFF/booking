@@ -22,7 +22,30 @@ export class AuthPage implements OnInit {
   ngOnInit() {
   }
 
-  login() {
+  submit(form: NgForm) {
+    console.log('submit', form);
+    if (form.invalid) {
+      return;
+    }
+
+    console.log(form.value);
+
+    if (this.isSignup) {
+      // Send a request to signup servers
+    } else {
+      // Send a request to login servers
+      this._login()
+    }
+  }
+
+  switchAuthMode() {
+    console.log('switchAuthMode');
+    this.isSignup = !this.isSignup;
+  }
+
+
+
+  private _login() {
     this.isLoading = true;
     this.authService.login();
     this.loadingController.create({keyboardClose: true, message: 'Loggin in...' })
@@ -34,23 +57,5 @@ export class AuthPage implements OnInit {
           this.router.navigateByUrl('/places/tabs/discover').then();
         }, 1000);
       });
-  }
-
-  submit(form: NgForm) {
-    if (form.invalid) {
-      return;
-    }
-
-    console.log(form.value);
-
-    if (this.isSignup) {
-      // Send a request to signup servers
-    } else {
-      // Send a request to login servers
-    }
-  }
-
-  switchAuthMode() {
-    this.isSignup = !this.isSignup;
   }
 }

@@ -1,18 +1,20 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {ActionSheetController, ModalController, NavController} from "@ionic/angular";
 import {PlacesService} from "../../places.service";
 import {IPlace} from "../../places.model";
 import {CreateBookingComponent} from "../../../bookings/create-booking/create-booking.component";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-place-detail',
   templateUrl: './place-detail.page.html',
   styleUrls: ['./place-detail.page.scss'],
 })
-export class PlaceDetailPage implements OnInit {
+export class PlaceDetailPage implements OnInit, OnDestroy {
 
   place: IPlace;
+  private _placeSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -26,11 +28,19 @@ export class PlaceDetailPage implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap => {
       if (paramMap.has('placeId')) {
-        this.place = this.placesService.getPlace(paramMap.get('placeId'));
+        this._placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
+          this.place = place;
+        });
       } else {
         this.navController.navigateBack('/places/tabs/discover');
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this._placeSub) {
+      this._placeSub.unsubscribe();
+    }
   }
 
   bookPlace() {
@@ -65,7 +75,8 @@ export class PlaceDetailPage implements OnInit {
     this.modalController.create({
       component: CreateBookingComponent,
       componentProps: {
-        place: this.place
+        place: this.place,
+        mode: mode
       }
     }).then((modalElement) => {
       modalElement.present().then();
