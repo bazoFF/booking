@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  api: 'https://booking-94717-default-rtdb.europe-west1.firebasedatabase.app'
 };
 
 /*

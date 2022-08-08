@@ -2,12 +2,16 @@ import {Injectable} from '@angular/core';
 import {IPlace, IPlaceCreate, IPlaceUpdate} from './places.model';
 import {AuthService} from "../auth/auth.service";
 import {BehaviorSubject, Observable} from "rxjs";
-import {delay, map, take, tap} from "rxjs/operators";
+import {delay, map, switchMap, take, tap} from "rxjs/operators";
+import {HttpClient} from "@angular/common/http";
+import {environment as env} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlacesService {
+  private _postFixURL = 'offered-places.json';
+
   private _places: BehaviorSubject<IPlace[]> = new BehaviorSubject([
     {
       id: 'p1',
@@ -45,7 +49,14 @@ export class PlacesService {
     return this._places.asObservable();
   }
 
-  constructor(private _authService: AuthService) {
+  constructor(private _authService: AuthService, private _http: HttpClient) {
+  }
+
+  fetchPlaces() {
+    return this._http.get(`${env.api}/${this._postFixURL}`)
+      .pipe(tap((result) => {
+        console.log(result);
+    }));
   }
 
   getPlace(placeId: string): Observable<IPlace> {
@@ -62,9 +73,17 @@ export class PlacesService {
       userId: this._authService.userId
     };
 
-    return this.places.pipe(take(1), delay(1000), tap((places) => {
-        this._places.next(places.concat(newPlace));
-    }));
+    return this._http.post<{name: string}>(`${env.api}/${this._postFixURL}`, {...newPlace, id: null})
+      .pipe(
+        switchMap((result) => {
+          newPlace.id = result.name;
+          return this.places;
+        }),
+        take(1),
+        tap((places) => {
+          this._places.next(places.concat(newPlace));
+        })
+      );
   }
 
   updatePlace(placeId: string, dto: IPlaceUpdate) {
