@@ -1,6 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
-import {ActionSheetController, LoadingController, ModalController, NavController} from "@ionic/angular";
+import {ActivatedRoute, Router} from "@angular/router";
+import {
+  ActionSheetController,
+  AlertController,
+  LoadingController,
+  ModalController,
+  NavController
+} from "@ionic/angular";
 import {PlacesService} from "../../places.service";
 import {IPlace} from "../../places.model";
 import {CreateBookingComponent} from "../../../bookings/create-booking/create-booking.component";
@@ -16,8 +22,9 @@ import {AuthService} from "../../../auth/auth.service";
 })
 export class PlaceDetailPage implements OnInit, OnDestroy {
 
-  place: IPlace;
-  isBookable: boolean;
+  public place: IPlace;
+  public isBookable: boolean;
+  public isLoading: boolean;
   private _placeSub: Subscription;
 
   constructor(
@@ -28,16 +35,33 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private actionSheetController: ActionSheetController,
     private _bookingsService: BookingService,
     private _loadingController: LoadingController,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private _alertController: AlertController,
+    private _router: Router
   ) {
   }
 
   ngOnInit() {
     this.route.paramMap.subscribe(paramMap => {
       if (paramMap.has('placeId')) {
+        this.isLoading = true;
         this._placeSub = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
           this.place = place;
           this.isBookable = place.userId !== this._authService.userId;
+          this.isLoading = false;
+        }, () => {
+          this._alertController.create({
+            header: 'An error occurred!',
+            message: 'Could not load place.',
+            buttons: [{
+              text: 'Okay',
+              handler: () => {
+                this._router.navigate(['/places/tabs/discover']).then();
+              }
+            }]
+          }).then(alert => {
+            alert.present().then();
+          });
         });
       } else {
         this.navController.navigateBack('/places/tabs/discover');

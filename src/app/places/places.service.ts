@@ -1,8 +1,8 @@
- import {Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {IPlace, IPlaceCreate, IPlaceUpdate} from './places.model';
 import {AuthService} from "../auth/auth.service";
-import {BehaviorSubject, Observable} from "rxjs";
-import {delay, map, switchMap, take, tap} from "rxjs/operators";
+import {BehaviorSubject, Observable, of, throwError} from "rxjs";
+import {map, mergeMap, switchMap, take, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {environment as env} from "../../environments/environment";
 
@@ -23,20 +23,20 @@ export class PlacesService {
   }
 
   fetchPlaces() {
-    return this._http.get<{[key: string]: IPlace}>(`${env.api}/${this._tableName}${this._postFixURL}`)
+    return this._http.get<{ [key: string]: IPlace }>(`${env.api}/${this._tableName}${this._postFixURL}`)
       .pipe(
         map((result) => {
-            const places = [];
-            for (const key in result) {
-              if (result.hasOwnProperty(key)) {
-                const item: IPlace = {
-                  ...result[key],
-                  id: key,
-                };
-                places.push(item);
-              }
+          const places = [];
+          for (const key in result) {
+            if (result.hasOwnProperty(key)) {
+              const item: IPlace = {
+                ...result[key],
+                id: key,
+              };
+              places.push(item);
             }
-            return places;
+          }
+          return places;
         }),
         tap(places => {
           this._places.next(places);
@@ -46,9 +46,7 @@ export class PlacesService {
 
   getPlace(placeId: string): Observable<IPlace> {
     return this._http.get(`${env.api}/${this._tableName}/${placeId}${this._postFixURL}`)
-      .pipe(
-        map(place => ({...place, id: placeId }) as IPlace)
-      );
+      .pipe(switchMap(place => place ? of(({...place, id: placeId}) as IPlace) : throwError(null)));
   }
 
   addPlace(dto: IPlaceCreate) {
@@ -59,7 +57,10 @@ export class PlacesService {
       userId: this._authService.userId
     };
 
-    return this._http.post<{name: string}>(`${env.api}/${this._tableName}${this._postFixURL}`, {...newPlace, id: null})
+    return this._http.post<{ name: string }>(`${env.api}/${this._tableName}${this._postFixURL}`, {
+      ...newPlace,
+      id: null
+    })
       .pipe(
         switchMap((result) => {
           newPlace.id = result.name;
@@ -77,30 +78,33 @@ export class PlacesService {
     return this.places.pipe(
       take(1),
       switchMap((places) => {
-      const updatedPlaceIndex = places.findIndex(place => place.id === placeId);
-      const updatedPlaces = [...places];
-      const oldPlace = {...updatedPlaces[updatedPlaceIndex]};
+        if (!places || places.length <= 0) {
+          return this.fetchPlaces();
+        } else {
+          return of(places);
+        }
+      }),
+      switchMap((places) => {
+        const updatedPlaceIndex = places.findIndex(place => place.id === placeId);
+        const updatedPlaces = [...places];
+        const oldPlace = {...updatedPlaces[updatedPlaceIndex]};
 
-      updatedPlaces[updatedPlaceIndex] = {
-        ...oldPlace,
-        title: dto.title,
-        description: dto.description
-      };
+        updatedPlaces[updatedPlaceIndex] = {
+          ...oldPlace,
+          title: dto.title,
+          description: dto.description
+        };
 
-      return this._http.put(
-        `${env.api}/${this._tableName}/${placeId}${this._postFixURL}`,
-        {...updatedPlaces[updatedPlaceIndex], id: null}
-      );
-    }),
+        console.log({...updatedPlaces[updatedPlaceIndex], id: null});
+
+        return this._http.put(
+          `${env.api}/${this._tableName}/${placeId}${this._postFixURL}`,
+          {...updatedPlaces[updatedPlaceIndex], id: null}
+        );
+      }),
       tap(() => {
         this._places.next(updatedPlaces);
       })
     );
-
-
-
-    return this.places.pipe(take(1), delay(1000), tap(places => {
-
-    }));
   }
 }

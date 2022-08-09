@@ -1,10 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {PlacesService} from "../../places.service";
-import {LoadingController, NavController} from "@ionic/angular";
+import {AlertController, LoadingController, NavController} from "@ionic/angular";
 import {IPlace, IPlaceUpdate} from "../../places.model";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {Subscription} from "rxjs";
+import {of, Subscription, throwError} from "rxjs";
+import {catchError} from "rxjs/operators";
 
 @Component({
   selector: 'app-edit-offer',
@@ -24,7 +25,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
     private _placesService: PlacesService,
     private _navController: NavController,
     private _loadingController: LoadingController,
-    private _router: Router
+    private _router: Router,
+    private _alertController: AlertController
   ) {
   }
 
@@ -32,14 +34,36 @@ export class EditOfferPage implements OnInit, OnDestroy {
     this._route.paramMap.subscribe(paramMap => {
       if (paramMap.has('placeId')) {
         this.placeId = paramMap.get('placeId');
+        this.isLoading = true;
         this._placeSub = this._placesService.getPlace(this.placeId).subscribe(place => {
+          console.log('NOT ERROR');
           this.place = place;
+          this._buildForm();
+          this.isLoading = false;
+        }, () => {
+          console.log('ERROR');
+          this._alertController.create({
+            header: 'An error occurred!',
+            message: 'Place could not be fetched. Please try again later.',
+            buttons: [{
+              text: 'Okay',
+              handler: () => {
+                this._router.navigate(['/places/tabs/offers']);
+              }
+            }]
+          }).then(alert => {
+            alert.present().then();
+          })
         });
       } else {
         this._navController.navigateBack('/places/tabs/offers');
         return;
       }
     });
+
+  }
+
+  private _buildForm() {
     this.form = new FormGroup<any>({
       title: new FormControl(this.place.title, { updateOn: 'blur', validators: [Validators.required] }),
       description: new FormControl(this.place.description, { updateOn: 'blur', validators: [Validators.required,
