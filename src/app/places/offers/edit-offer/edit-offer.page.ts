@@ -13,7 +13,9 @@ import {Subscription} from "rxjs";
 })
 export class EditOfferPage implements OnInit, OnDestroy {
   public place: IPlace;
+  public placeId: string;
   public form: FormGroup;
+  public isLoading: boolean;
 
   private _placeSub: Subscription;
 
@@ -29,7 +31,8 @@ export class EditOfferPage implements OnInit, OnDestroy {
   ngOnInit() {
     this._route.paramMap.subscribe(paramMap => {
       if (paramMap.has('placeId')) {
-        this._placeSub = this._placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
+        this.placeId = paramMap.get('placeId');
+        this._placeSub = this._placesService.getPlace(this.placeId).subscribe(place => {
           this.place = place;
         });
       } else {
