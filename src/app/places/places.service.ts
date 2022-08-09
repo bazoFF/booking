@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {IPlace, IPlaceCreate, IPlaceUpdate} from './places.model';
 import {AuthService} from "../auth/auth.service";
 import {BehaviorSubject, Observable, of, throwError} from "rxjs";
-import {map, mergeMap, switchMap, take, tap} from "rxjs/operators";
+import {map, switchMap, take, tap} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {environment as env} from "../../environments/environment";
 
@@ -10,7 +10,7 @@ import {environment as env} from "../../environments/environment";
   providedIn: 'root'
 })
 export class PlacesService {
-  private _tableName = 'offered-places';
+  private _entity = 'offered-places';
   private _postFixURL = '.json';
 
   private _places: BehaviorSubject<IPlace[]> = new BehaviorSubject([]);
@@ -23,7 +23,7 @@ export class PlacesService {
   }
 
   fetchPlaces() {
-    return this._http.get<{ [key: string]: IPlace }>(`${env.api}/${this._tableName}${this._postFixURL}`)
+    return this._http.get<{ [key: string]: IPlace }>(`${env.api}/${this._entity}${this._postFixURL}`)
       .pipe(
         map((result) => {
           const places = [];
@@ -45,7 +45,7 @@ export class PlacesService {
   }
 
   getPlace(placeId: string): Observable<IPlace> {
-    return this._http.get(`${env.api}/${this._tableName}/${placeId}${this._postFixURL}`)
+    return this._http.get(`${env.api}/${this._entity}/${placeId}${this._postFixURL}`)
       .pipe(switchMap(place => place ? of(({...place, id: placeId}) as IPlace) : throwError(null)));
   }
 
@@ -57,7 +57,7 @@ export class PlacesService {
       userId: this._authService.userId
     };
 
-    return this._http.post<{ name: string }>(`${env.api}/${this._tableName}${this._postFixURL}`, {
+    return this._http.post<{ name: string }>(`${env.api}/${this._entity}${this._postFixURL}`, {
       ...newPlace,
       id: null
     })
@@ -98,7 +98,7 @@ export class PlacesService {
         console.log({...updatedPlaces[updatedPlaceIndex], id: null});
 
         return this._http.put(
-          `${env.api}/${this._tableName}/${placeId}${this._postFixURL}`,
+          `${env.api}/${this._entity}/${placeId}${this._postFixURL}`,
           {...updatedPlaces[updatedPlaceIndex], id: null}
         );
       }),
