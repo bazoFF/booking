@@ -1,0 +1,12 @@
+ion-content {
+  --background: transparent;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  z-index: 99999;
+  position: fixed;
+  bottom: 30px;
+}
