@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class AuthService {
-  private _userIsAuthenticated = true; // todo: switch to false
+  private _userIsAuthenticated = false;
   private _userId = 'dd0c1776-e790-45f0-9e25-e1f85711656a'
 
   get userIsAuthenticated(): boolean {

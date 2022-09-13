@@ -3,6 +3,8 @@ import {AuthService} from "./auth.service";
 import {Router} from "@angular/router";
 import {LoadingController} from "@ionic/angular";
 import {NgForm} from "@angular/forms";
+import { Contacts } from "@capacitor-community/contacts";
+import { AndroidPermissions } from "@awesome-cordova-plugins/android-permissions/ngx";
 
 @Component({
   selector: 'app-auth',
@@ -13,7 +15,12 @@ export class AuthPage implements OnInit {
   public isLoading: boolean;
   public isSignup: boolean;
 
-  constructor(private authService: AuthService, private router: Router, private loadingController: LoadingController) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private loadingController: LoadingController,
+    private _permissionsService: AndroidPermissions
+  ) { }
 
   get modeName() {
     return this.isSignup ? 'login' : 'signup';
@@ -42,8 +49,16 @@ export class AuthPage implements OnInit {
     console.log('switchAuthMode');
     this.isSignup = !this.isSignup;
   }
+  async testContacts() {
+    await this._permissionsService.requestPermissions([
+      this._permissionsService.PERMISSION.READ_CONTACTS,
+      this._permissionsService.PERMISSION.WRITE_CONTACTS
+    ]);
 
-
+    Contacts.getContacts().then(result => {
+      console.log(result);
+    });
+  }
 
   private _login() {
     this.isLoading = true;

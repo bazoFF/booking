@@ -6,12 +6,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && ionic cap build android",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "android": "ionic capacitor run android -l",
-    "setup": "npm i && ionic capacitor add android && ionic capacitor build android"
+    "android": "ionic cap run android -l",
+    "setup": "npm i && ionic cap add android && ionic cap build android"
   },
   "private": true,
   "dependencies": {
@@ -21,6 +21,9 @@
     "@angular/platform-browser": "^14.0.0",
     "@angular/platform-browser-dynamic": "^14.0.0",
     "@angular/router": "^14.0.0",
+    "@awesome-cordova-plugins/android-permissions": "^5.45.0",
+    "@awesome-cordova-plugins/core": "^5.45.0",
+    "@capacitor-community/contacts": "^1.1.3",
     "@capacitor/android": "3.6.0",
     "@capacitor/app": "1.1.1",
     "@capacitor/core": "3.6.0",
@@ -28,6 +31,7 @@
     "@capacitor/keyboard": "1.2.3",
     "@capacitor/status-bar": "1.0.8",
     "@ionic/angular": "^6.1.9",
+    "cordova-plugin-android-permissions": "^1.1.4",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "zone.js": "~0.11.4"
