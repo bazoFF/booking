@@ -5,6 +5,8 @@ import { IonicModule } from '@ionic/angular';
 import { AuthPage } from './auth.page';
 import { RouterModule } from '@angular/router';
 import { AndroidPermissions } from "@awesome-cordova-plugins/android-permissions/ngx";
+import { CameraComponent } from "./components/camera/camera.component";
+import { ContactsComponent } from "./components/contacts/contacts.component";
 
 @NgModule({
   imports: [
@@ -13,7 +15,7 @@ import { AndroidPermissions } from "@awesome-cordova-plugins/android-permissions
     IonicModule,
     RouterModule.forChild([{path: '', component: AuthPage}]),
   ],
-  declarations: [AuthPage],
+  declarations: [AuthPage, CameraComponent, ContactsComponent],
   providers: [AndroidPermissions]
 })
 export class AuthPageModule {

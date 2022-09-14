@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Camera</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="stopCamera(); close();">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding" id="content" [fullscreen]="true">
+  <div class="camera__buttons" *ngIf="isRecording">
+    <ion-button (click)="flipCamera()" fill="clear">
+      <ion-icon slot="icon-only" name="reverse-camera"></ion-icon>
+    </ion-button>
+    <ion-button (click)="takePhoto()" fill="clear">
+      <ion-icon slot="icon-only" name="aperture"></ion-icon>
+    </ion-button>
+    <ion-button (click)="stopCamera()" fill="clear" color="warn">
+      <ion-icon slot="icon-only" name="pause"></ion-icon>
+    </ion-button>
+  </div>
+  <ion-grid *ngIf="images.length > 0 && !isRecording">
+    <ion-row>
+      <ion-col size="6" offset="3" *ngFor="let image of images">
+        <ion-img [src]="'data:image/png;base64,' + this.image"></ion-img>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+

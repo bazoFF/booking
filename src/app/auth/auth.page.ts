@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "./auth.service";
 import { Router } from "@angular/router";
-import { LoadingController } from "@ionic/angular";
+import { LoadingController, ModalController } from "@ionic/angular";
 import { NgForm } from "@angular/forms";
 import { Contacts } from "@capacitor-community/contacts";
 import { AndroidPermissions } from "@awesome-cordova-plugins/android-permissions/ngx";
 import { CameraPreview } from "@capacitor-community/camera-preview";
+import { CameraComponent } from "./components/camera/camera.component";
+import { ContactsComponent } from "./components/contacts/contacts.component";
 
 @Component({
   selector: 'app-auth',
@@ -22,7 +24,8 @@ export class AuthPage implements OnInit {
     private authService: AuthService,
     private router: Router,
     private loadingController: LoadingController,
-    private _permissionsService: AndroidPermissions
+    private _permissionsService: AndroidPermissions,
+    private _modalController: ModalController
   ) {
   }
 
@@ -54,48 +57,16 @@ export class AuthPage implements OnInit {
     this.isSignup = !this.isSignup;
   }
 
-  async testContacts() {
-    await this._permissionsService.requestPermissions([
-      this._permissionsService.PERMISSION.READ_CONTACTS,
-      this._permissionsService.PERMISSION.WRITE_CONTACTS
-    ]);
-
-    Contacts.getContacts().then(result => {
-      console.log(result);
-    });
+  public testContacts() {
+    this._modalController.create({
+      component: ContactsComponent
+    }).then(el => el.present());
   }
 
-  async testCamera() {
-    await this._permissionsService.requestPermissions([
-      this._permissionsService.PERMISSION.CAMERA,
-      this._permissionsService.PERMISSION.READ_EXTERNAL_STORAGE,
-      this._permissionsService.PERMISSION.WRITE_EXTERNAL_STORAGE
-    ]);
-
-    await CameraPreview.start({
-      parent: "content",
-      position: "rear",
-      enableHighResolution: true
-    });
-
-    this.isRecording = true;
-
-    // const image = await Camera.getPhoto({
-    //   quality: 90,
-    //   allowEditing: true,
-    //   resultType: CameraResultType.Uri
-    // });
-    //
-    // this.imgSrc = image.webPath;
-    //
-    // console.log(image.base64String);
-  }
-
-  async takePhoto() {
-    const capture = await CameraPreview.capture({quality: 100});
-    this.imgSrc = capture.value;
-    await CameraPreview.stop();
-    this.isRecording = false;
+  public testCamera() {
+    this._modalController.create({
+      component: CameraComponent
+    }).then(el => el.present());
   }
 
   private _login() {
